@@ -2,19 +2,17 @@
 header("Content-Type: application/json; charset=utf-8");
 require_once __DIR__ . "/auth_lib.php";
 
-$servername = getenv("MYSQLHOST");
-$username   = getenv("MYSQLUSER");
-$password   = getenv("MYSQLPASSWORD");
-$dbname     = getenv("MYSQLDATABASE");  // normalmente "railway"
-$port       = getenv("MYSQLPORT");
+$servername = "mainline.proxy.rlwy.net";
+$username   = "root";
+$password   = "kFmyRhrsDbnDOjsGCxHVSxStbVZhQDmQ";
+$dbname     = "railway";
+$port       = 38514;
 
-$conn = new mysqli($servername, $username, $password, $dbname, (int)$port);
+$conn = new mysqli($servername, $username, $password, $dbname, $port);
 $conn->set_charset("utf8mb4");
 
 if ($conn->connect_error) {
-    http_response_code(500);
-    echo json_encode(["status"=>"error","msg"=>"DB fail","err"=>$conn->connect_error]);
-    exit;
+    die("DB fail: " . $conn->connect_error);
 }
 $conn = new mysqli($servername, $username, $password, $dbname);
 $conn->set_charset("utf8mb4");

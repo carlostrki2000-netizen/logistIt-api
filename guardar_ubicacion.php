@@ -5,10 +5,24 @@ file_put_contents("debug_raw.txt", file_get_contents("php://input")); // Debug d
 header("Content-Type: application/json");
 header("Access-Control-Allow-Origin: *");
 
-$servername = "localhost";
-$username = "root";
-$password = "root";
-$dbname = "rastreo";
+$servername = getenv("MYSQLHOST");
+$username   = getenv("MYSQLUSER");
+$password   = getenv("MYSQLPASSWORD");
+$dbname     = getenv("MYSQLDATABASE");
+$port       = getenv("MYSQLPORT");
+
+$conn = new mysqli($servername, $username, $password, $dbname, (int)$port);
+$conn->set_charset("utf8mb4");
+
+if ($conn->connect_error) {
+    http_response_code(500);
+    echo json_encode([
+        "status" => "error",
+        "msg" => "DB fail",
+        "error" => $conn->connect_error
+    ]);
+    exit;
+}
 
 $conn = new mysqli($servername, $username, $password, $dbname);
 if ($conn->connect_error) {

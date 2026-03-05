@@ -1,10 +1,18 @@
 <?php
 header("Content-Type: application/json; charset=utf-8");
 
-$servername = "localhost";
-$username = "root";
-$password = "root";
-$dbname = "rastreo";
+$servername = "mainline.proxy.rlwy.net";
+$username   = "root";
+$password   = "kFmyRhrsDbnDOjsGCxHVSxStbVZhQDmQ";
+$dbname     = "railway";
+$port       = 38514;
+
+$conn = new mysqli($servername, $username, $password, $dbname, $port);
+$conn->set_charset("utf8mb4");
+
+if ($conn->connect_error) {
+    die("DB fail: " . $conn->connect_error);
+}
 
 $conn = new mysqli($servername, $username, $password, $dbname);
 $conn->set_charset("utf8mb4");
