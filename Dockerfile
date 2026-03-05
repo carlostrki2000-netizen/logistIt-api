@@ -1,17 +1,11 @@
-FROM php:8.2-apache
+FROM php:8.2-cli
 
-# Extensiones PHP necesarias
+# Extensiones para MySQL
 RUN docker-php-ext-install mysqli pdo pdo_mysql
 
-# ✅ Forzar SOLO un MPM (prefork) y deshabilitar los otros
-RUN a2dismod mpm_event mpm_worker || true \
- && a2enmod mpm_prefork
+# Carpeta de la app
+WORKDIR /app
+COPY . /app
 
-# (Opcional) headers/rewrite si los ocupas
-RUN a2enmod rewrite headers
-
-# Copiar tu API
-COPY . /var/www/html/
-
-# Permisos (si usas uploads)
-RUN chown -R www-data:www-data /var/www/html
+# Railway expone el puerto en la variable $PORT
+CMD ["sh", "-c", "php -S 0.0.0.0:${PORT} -t /app"]
