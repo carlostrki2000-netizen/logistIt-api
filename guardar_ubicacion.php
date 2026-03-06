@@ -2,10 +2,10 @@
 header("Content-Type: application/json; charset=utf-8");
 header("Access-Control-Allow-Origin: *");
 
-require_once __DIR__ . '/db.php';
+require_once __DIR__ . "/db.php";
 
 try {
-    $pdo = db_conn_pdo();
+    $conn = db_conn();
 } catch (Throwable $e) {
     http_response_code(500);
     echo json_encode([
@@ -24,6 +24,7 @@ $id  = $_POST["traker_id"] ?? null;
 $lat = $_POST["lat"] ?? null;
 $lon = $_POST["lon"] ?? null;
 
+// Si POST viene vacío, intentar JSON
 $data = null;
 if ($id === null || $lat === null || $lon === null) {
     $raw = file_get_contents("php://input");
@@ -48,19 +49,15 @@ if ($id === null || $lat === null || $lon === null || $id === '' || $lat === '' 
 }
 
 $sql = "INSERT INTO ubicaciones (nombre, lat, lon)
-        VALUES (:id, :lat, :lon)
+        VALUES (?, ?, ?)
         ON DUPLICATE KEY UPDATE
             lat = VALUES(lat),
             lon = VALUES(lon)";
 
-$stmt = $pdo->prepare($sql);
-$ok = $stmt->execute([
-    ':id'  => $id,
-    ':lat' => $lat,
-    ':lon' => $lon
-]);
+$stmt = $conn->prepare($sql);
+$stmt->bind_param("sss", $id, $lat, $lon);
 
-if ($ok) {
+if ($stmt->execute()) {
     echo json_encode([
         "status" => "success",
         "msg" => "Registro guardado o actualizado",
@@ -74,7 +71,10 @@ if ($ok) {
     http_response_code(500);
     echo json_encode([
         "status" => "error",
-        "msg" => "No se pudo guardar la ubicación"
+        "msg" => $stmt->error
     ]);
 }
+
+$stmt->close();
+$conn->close();
 ?>
