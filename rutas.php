@@ -1,27 +1,31 @@
 <?php
 header('Content-Type: application/json; charset=utf-8');
 
-
 require_once __DIR__ . '/db.php';
+
 try {
-    $pdo = db_conn_pdo();
+    $conexion = db_conn();
 } catch (Throwable $e) {
+    http_response_code(500);
     echo json_encode([
         "ok" => false,
         "normales" => [],
-        "cajas" => new stdClass()
+        "cajas" => new stdClass(),
+        "msg" => "DB fail",
+        "error" => $e->getMessage()
     ], JSON_UNESCAPED_UNICODE);
     exit();
 }
 
-// $conexion = new mysqli("localhost", "root", "root", "rastreo");
-// if ($conexion->connect_error) {
-//     echo json_encode(["ok"=>false, "normales"=>[], "cajas"=>new stdClass()], JSON_UNESCAPED_UNICODE);
-//     exit();
-// }
 $traker_id = $_POST['traker_id'] ?? $_GET['traker_id'] ?? '';
+
 if ($traker_id === '') {
-    echo json_encode(["ok"=>false, "normales"=>[], "cajas"=>new stdClass()], JSON_UNESCAPED_UNICODE);
+    echo json_encode([
+        "ok" => false,
+        "normales" => [],
+        "cajas" => new stdClass(),
+        "msg" => "Falta traker_id"
+    ], JSON_UNESCAPED_UNICODE);
     exit();
 }
 
@@ -61,8 +65,8 @@ $stmt->bind_param("s", $traker_id);
 $stmt->execute();
 $result = $stmt->get_result();
 
-$normales = []; // caja = SN
-$cajas = [];    // "CJxxx" => [rows]
+$normales = [];
+$cajas = [];
 
 while ($row = $result->fetch_assoc()) {
     $caja = trim((string)($row['caja'] ?? ''));
@@ -70,14 +74,18 @@ while ($row = $result->fetch_assoc()) {
     if ($caja === '' || strtoupper($caja) === 'SN') {
         $normales[] = $row;
     } else {
-        if (!isset($cajas[$caja])) $cajas[$caja] = [];
+        if (!isset($cajas[$caja])) {
+            $cajas[$caja] = [];
+        }
         $cajas[$caja][] = $row;
     }
 }
 
-// OJO: si $cajas queda vacío, mandamos objeto vacío para que Android no truene
 echo json_encode([
     "ok" => true,
     "normales" => $normales,
     "cajas" => empty($cajas) ? new stdClass() : $cajas
 ], JSON_UNESCAPED_UNICODE);
+
+$stmt->close();
+$conexion->close();
