@@ -1,12 +1,24 @@
 <?php
 header('Content-Type: application/json; charset=utf-8');
 
-$conexion = new mysqli("localhost", "root", "root", "rastreo");
-if ($conexion->connect_error) {
-    echo json_encode(["ok"=>false, "normales"=>[], "cajas"=>new stdClass()], JSON_UNESCAPED_UNICODE);
+
+require_once __DIR__ . '/db.php';
+try {
+    $pdo = db_conn_pdo();
+} catch (Throwable $e) {
+    echo json_encode([
+        "ok" => false,
+        "normales" => [],
+        "cajas" => new stdClass()
+    ], JSON_UNESCAPED_UNICODE);
     exit();
 }
 
+// $conexion = new mysqli("localhost", "root", "root", "rastreo");
+// if ($conexion->connect_error) {
+//     echo json_encode(["ok"=>false, "normales"=>[], "cajas"=>new stdClass()], JSON_UNESCAPED_UNICODE);
+//     exit();
+// }
 $traker_id = $_POST['traker_id'] ?? $_GET['traker_id'] ?? '';
 if ($traker_id === '') {
     echo json_encode(["ok"=>false, "normales"=>[], "cajas"=>new stdClass()], JSON_UNESCAPED_UNICODE);
