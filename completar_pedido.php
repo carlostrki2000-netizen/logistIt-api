@@ -25,8 +25,8 @@ if (!$id_pedido) {
     exit;
 }
 
-$stmt = $conn->prepare("UPDATE rutas SET STAT_PED = 'E' WHERE CVE_PED = ?");
-$stmt->bind_param("i", $id_pedido);
+$stmt = $conn->prepare("UPDATE rutas SET STAT_PED = 'E' WHERE pedido_id = ?");
+$stmt->bind_param("s", $id_pedido); // "s" porque pedido_id es varchar(50)
 
 if ($stmt->execute()) {
     echo json_encode([
