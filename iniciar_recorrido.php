@@ -2,16 +2,21 @@
 header("Content-Type: application/json; charset=utf-8");
 header("Access-Control-Allow-Origin: *");
 
-require_once __DIR__ . "/db.php";
+$servername = getenv("MYSQLHOST");
+$username   = getenv("MYSQLUSER");
+$password   = getenv("MYSQLPASSWORD");
+$dbname     = getenv("MYSQLDATABASE");
+$port       = getenv("MYSQLPORT");
 
-try {
-    $conn = db_conn();
-} catch (Throwable $e) {
+$conn = new mysqli($servername, $username, $password, $dbname, (int)$port);
+$conn->set_charset("utf8mb4");
+
+if ($conn->connect_error) {
     http_response_code(500);
     echo json_encode([
         "status" => "error",
-        "msg" => "DB fail",
-        "error" => $e->getMessage()
+        "msg"   => "DB fail",
+        "error" => $conn->connect_error
     ]);
     exit;
 }
@@ -22,15 +27,11 @@ if (!$id_ruta) {
     http_response_code(400);
     echo json_encode([
         "status" => "error",
-        "msg" => "Falta id_ruta"
+        "msg"   => "Falta id_ruta"
     ]);
     exit;
 }
 
-/*
-  Actualiza todos los registros que pertenezcan a esa ruta
-  y pone STAT_PED = 'C'
-*/
 $stmt = $conn->prepare("
     UPDATE rutas
     SET STAT_PED = 'C'
@@ -41,16 +42,16 @@ $stmt->bind_param("i", $id_ruta);
 
 if ($stmt->execute()) {
     echo json_encode([
-        "status" => "success",
-        "msg" => "Recorrido iniciado correctamente",
-        "id_ruta" => (int)$id_ruta,
+        "status"          => "success",
+        "msg"             => "Recorrido iniciado correctamente",
+        "id_ruta"         => (int)$id_ruta,
         "filas_afectadas" => $stmt->affected_rows
     ]);
 } else {
     http_response_code(500);
     echo json_encode([
         "status" => "error",
-        "msg" => $stmt->error
+        "msg"   => $stmt->error
     ]);
 }
 
