@@ -25,7 +25,7 @@ if (!$id_pedido) {
     exit;
 }
 
-$stmt = $conn->prepare("UPDATE rutas SET STAT_PED = 'C' WHERE CVE_PED = ?");
+$stmt = $conn->prepare("UPDATE rutas SET STAT_PED = 'E' WHERE CVE_PED = ?");
 $stmt->bind_param("i", $id_pedido);
 
 if ($stmt->execute()) {
