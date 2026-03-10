@@ -25,8 +25,12 @@ if (!$id_pedido) {
     exit;
 }
 
-$stmt = $conn->prepare("UPDATE rutas SET STAT_PED = 'E' WHERE pedido_id = ?");
-$stmt->bind_param("s", $id_pedido); // "s" porque pedido_id es varchar(50)
+$stmt = $conn->prepare("
+    UPDATE rutas 
+    SET STAT_PED = 'E', hora_entrega = NOW() 
+    WHERE pedido_id = ?
+");
+$stmt->bind_param("s", $id_pedido);
 
 if ($stmt->execute()) {
     echo json_encode([
