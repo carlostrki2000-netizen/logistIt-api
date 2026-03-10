@@ -1,10 +1,12 @@
 <?php
 header("Content-Type: application/json; charset=utf-8");
 
+require_once __DIR__ . '/db.php';
+
 // CONEXION
 function db_conn_pdo(): PDO {
 
-require_once __DIR__ . '/db.php';
+    global $host, $port, $name, $user, $pass;
 
     return new PDO(
         "mysql:host={$host};port={$port};dbname={$name};charset=utf8mb4",
@@ -36,12 +38,14 @@ try {
             WHERE id = :ruta_id";
 
     $stmt = $db->prepare($sql);
-    $stmt->bindParam(":ruta_id",$ruta_id);
-    $stmt->execute();
+    $stmt->execute([
+        ":ruta_id" => $ruta_id
+    ]);
 
     echo json_encode([
         "success"=>true,
-        "message"=>"Recorrido iniciado"
+        "message"=>"Recorrido iniciado",
+        "ruta_id"=>$ruta_id
     ]);
 
 } catch (Exception $e) {
