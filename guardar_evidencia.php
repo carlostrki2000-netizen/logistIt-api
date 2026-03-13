@@ -48,7 +48,7 @@ if (!isset($allowed[$mime])) {
 $ext = $allowed[$mime];
 
 // Carpeta donde guardar
-$dir = __DIR__ . "/uploads/evidencias/";
+$dir = getenv("RAILWAY_VOLUME_MOUNT_PATH") . "/uploads/evidencias/";
 if (!is_dir($dir) && !mkdir($dir, 0755, true)) {
     http_response_code(500);
     echo json_encode(["status" => "error", "msg" => "No se pudo crear carpeta"]);
