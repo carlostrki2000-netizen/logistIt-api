@@ -1,7 +1,7 @@
 <?php
 header("Content-Type: application/json; charset=utf-8");
 header("Access-Control-Allow-Origin: *");
-
+date_default_timezone_set('America/Mexico_City');
 $servername = getenv("MYSQLHOST");
 $username   = getenv("MYSQLUSER");
 $password   = getenv("MYSQLPASSWORD");
