@@ -1,7 +1,17 @@
 <?php
 header("Content-Type: application/json; charset=utf-8");
 header("Access-Control-Allow-Origin: *");
+$mount = getenv("RAILWAY_VOLUME_MOUNT_PATH");
+error_log("MOUNT PATH: " . $mount);
 
+if (!$mount) {
+    http_response_code(500);
+    echo json_encode([
+        "status" => "error", 
+        "msg" => "RAILWAY_VOLUME_MOUNT_PATH no definida - valor: " . var_export($mount, true)
+    ]);
+    exit;
+}
 require_once __DIR__ . "/db.php";
 
 try {
